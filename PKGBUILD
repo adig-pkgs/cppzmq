@@ -11,21 +11,17 @@ optdepends=('cmake')
 source=("https://github.com/zeromq/cppzmq/archive/v${pkgver}.tar.gz")
 md5sums=('e85cf23b5aed263c2c5c89657737d107')
 
-prepare() {
-	cd "$srcdir/$pkgname-$pkgver"
-	mkdir -p build
-}
-
 build() {
-	cd "$srcdir/$pkgname-$pkgver/build"
-	cmake -D CMAKE_INSTALL_PREFIX=/usr -D CPPZMQ_BUILD_TESTS=OFF ..
+	cd "$srcdir/$pkgname-$pkgver"
+	cmake -D CMAKE_INSTALL_PREFIX=/usr -D CPPZMQ_BUILD_TESTS=OFF -B build
+	cmake --build build -j$(nproc)
 }
 
 package() {
 	depends=('zeromq>=4.2.0')
 
 	cd "$srcdir/$pkgname-$pkgver/build"
-	make -j4 DESTDIR="$pkgdir/" install
+	DESTDIR="$pkgdir/ " cmake --install .
 	cd ..
 	rm -rf "$pkgdir/usr/include"
 	install -m 755 -d "$pkgdir/usr/share/licenses/$pkgname"
